@@ -5,6 +5,12 @@ use Encode qw(from_to);
 use WWW::Mechanize;
 use Template;
 
+sub get_mech{
+my $m = new WWW::Mechanize();
+$m->agent_alias( 'Windows IE 6' );
+return $m;
+}
+
 my $exit_loop = 0;
 my $max_process = 30;
 my $tempfile    = 'temp.txt';
@@ -20,7 +26,7 @@ my $s_time = time();
 unlink $tempfile || die $!;
 
 # 部屋の取得
-my $m = new WWW::Mechanize();
+my $m = get_mech();
 $m->get('http://chat.teacup.com/');
 my @room_links = $m->find_all_links( 
     url_regex => qr"http://chat\d*\.teacup\.com/chat\?r=\d+" );
@@ -134,10 +140,12 @@ sub child{
 
     my $c = undef;
     {
-        my $m = new WWW::Mechanize();
+        my $m = get_mech;
         $m->get($url);
+#warn $m->status;
         $c = $m->content();
         from_to($c, 'cp932', 'utf8');
+#warn $c;
     }
 
     die $url
