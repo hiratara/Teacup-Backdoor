@@ -1,0 +1,82 @@
+<html>
+<head>
+<meta http-equiv="Refresh" content="210">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>teacup. 「みんなのチャット」裏口</title>
+<style>
+#copyright{
+  align: center;
+  color: #999;
+}
+.room-info{
+  vertical-align: top;
+  width: 300px;
+}
+.member-name{
+  color: #909;
+}
+.room-name{
+  background-color: #CCF;
+}
+.members{
+  background-color: #FFC;
+}
+</style>
+<script type="text/javascript" src="includes/prototype.js"></script>
+<script type="text/javascript" src="includes/scriptaculous.js?load=builder,effects"></script>
+<script type="text/javascript" src="includes/tooltips.js"></script>
+<link rel="stylesheet" href="includes/tooltips.css" type="text/css" 
+media="screen" />
+<script type="text/javascript">
+function load_tooltip(){
+  $$(".room_link").each( function(links) {
+    new Tooltip(links, 
+      {
+        backgroundColor: "#FFF", 
+        borderColor:     "#000", 
+        textColor:       "#000", 
+        textShadowColor: "#999"
+      }
+    );
+  });
+}
+</script>
+</head>
+<body onLoad="load_tooltip();">
+<div style="float:left;"><h1>teacup. 「みんなのチャット」裏口</h1></div>
+<div style="float:right;"><a href="/chaberi/">チャベリ 裏口</a> | by <a href="http://d.hatena.ne.jp/hiratara/">id:hiratara</a></div>
+<br clear="all" />
+<p>
+<a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>の非公式入り口です。<a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>を元に勝手に生成しています。
+</p>
+
+<p>
+※ このページは、<a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>とはなんの関係もありません。
+</p>
+
+<table>
+[% FOREACH R=ROOMS %]
+[% IF loop.count % 3 == 1 %]<tr>[% END %]
+<td class="room-info"> 
+<div class="room-name">
+<a href="[% R.URL %]" title="[% FOR L=R.LOGS.reverse %][% L.NAME | html %]「[% L.COMMENT | html %]」&#x0d;&#x0a;[% END %]" class="room_link">[% R.DISP %]</a>
+</div>
+<div class="members">
+  [% FOREACH M=R.MEMBERS %]
+  <span class="member-name">[% M %]</span>
+  [%- IF ! loop.last %]・[% END %]
+  [% END %]
+  &nbsp;
+</div>
+</td>
+[% IF loop.count % 3 == 0 %]</tr>[% END %]
+[% END %]
+</table>
+
+<hr>
+更新時間: [% UPD_TIME %]<br>
+処理にかかった時間: [% PROC_TIME %]秒<br>
+お問い合わせは、ｈｉｒａ．ｔａｒａ＠ｇｍａｉｌ．ｃｏｍまで。<br>
+<br>
+<div id="copyright" align="right">&copy; 2008 hiratara</div>
+</body>
