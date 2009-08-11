@@ -98,7 +98,7 @@ exit(0);
 
 
 sub get_room_id{
-    $_[0] =~ /r=(\d+)/;
+    $_[0] =~ /r(\d+)/;
     return $1;
 }
 
