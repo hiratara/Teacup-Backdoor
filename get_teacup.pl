@@ -29,7 +29,7 @@ unlink $tempfile || die $!;
 my $m = get_mech();
 $m->get('http://chat.teacup.com/');
 my @room_links = $m->find_all_links( 
-    url_regex => qr"http://chat\d*\.teacup\.com/chat\?r=\d+" );
+    url_regex => qr"http://chat\d*\.teacup\.com/chat/r\d+/" );
 
 #my @room_links = ();  #DBUEGDEBUGDEBUG
 
