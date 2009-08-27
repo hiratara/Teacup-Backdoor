@@ -29,7 +29,7 @@ unlink $tempfile || die $!;
 my $m = get_mech();
 $m->get('http://chat.teacup.com/');
 my @room_links = $m->find_all_links( 
-    url_regex => qr"http://chat\d*\.teacup\.com/chat\?r=\d+" );
+    url_regex => qr"http://chat\d*\.teacup\.com/chat(\?r=\d+|/r\d+/)" );
 
 #my @room_links = ();  #DBUEGDEBUGDEBUG
 
@@ -98,8 +98,8 @@ exit(0);
 
 
 sub get_room_id{
-    $_[0] =~ /r=(\d+)/;
-    return $1;
+    $_[0] =~ /r=(\d+)|r(\d+)/;
+    return $1 || $2;
 }
 
 
