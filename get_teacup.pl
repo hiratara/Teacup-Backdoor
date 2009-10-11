@@ -1,7 +1,7 @@
 #!/usr/local/bin/perl
 use strict;
 use warnings;
-use Encode qw(from_to);
+use Encode;
 use WWW::Mechanize;
 use Template;
 
@@ -135,7 +135,7 @@ sub child{
     # SIGTERM ハンドラをセット
     $SIG{TERM} = sub { exit 0 };
 
-    from_to(my $text = $l->text(), 'cp932', 'utf8');
+    my $text = encode_utf8 $l->text;
     my $url = $l->url_abs();
 
     my $c = undef;
@@ -143,8 +143,7 @@ sub child{
         my $m = get_mech;
         $m->get($url);
 #warn $m->status;
-        $c = $m->content();
-        from_to($c, 'cp932', 'utf8');
+        $c = encode_utf8 $m->content;
 #warn $c;
     }
 
