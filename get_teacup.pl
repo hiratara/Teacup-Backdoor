@@ -7,106 +7,16 @@ use WWW::Mechanize;
 use Coro;
 use Template;
 
-sub get_mech{
-my $m = new WWW::Mechanize();
-$m->agent_alias( 'Windows IE 6' );
-return $m;
-}
 
-my $exit_loop = 0;
-my $max_process = 30;
-my $tempfile    = 'temp.txt';
-my $room_logdir = 'room';
 my $tpl      = 'moto.tt';
 my $disthtml = '/Library/WebServer/Documents/teacup/index.html';
 $disthtml = 'out.html' if $ENV{DEBUG};
 
-# time計測
-my $s_time = time();
 
-# 初期化
-unlink $tempfile || die $!;
-
-# 部屋の取得
-my $m = get_mech();
-$m->get('http://chat.teacup.com/');
-my @room_links = $m->find_all_links( 
-    url_regex => qr"http://chat\d*\.teacup\.com/chat(\?r=\d+|/r\d+/)" );
-
-#my @room_links = ();  #DBUEGDEBUGDEBUG
-
-# SIGTERM ハンドラをセット
-$SIG{TERM} = sub { $exit_loop = 1 };
-
-my @coros;
-foreach my $l(@room_links){
-    last if $exit_loop;
-
-    my $url = $l->url_abs();
-
-    next unless $l->text();  #部屋名が不明なら飛ばす
-
-    push @coros, async {
-		child($l);
-	};
-}
-
-$_->join for @coros;
-
-# 部屋情報を収集
-my @room_data = ();
-open(IN, '<', $tempfile) || die $!;
-while(<IN>){
-    chomp;
-    my ($url, $name, @mems) = split(/\t/, $_);
-    push(@room_data, {
-        URL => $url, 
-        DISP => $name, 
-        MEMBERS => \@mems,
-        LOGS => get_roomlogs( get_room_id($url) )
-    });
-}
-close(IN);
-
-@room_data = sort {
-    my $anum = get_room_id($a->{URL});
-    my $bnum = get_room_id($b->{URL});
-    return $anum <=> $bnum;
-} @room_data;
-
-# テンプレートに書き出し
-my $tt = Template->new({});
-
-$tt->process($tpl, {
-    PROC_TIME => time() - $s_time,
-    UPD_TIME  => scalar(localtime()),
-    ROOMS => \@room_data,
-}, $disthtml) || die $tt->error();
-
-exit(0);
-
-
-sub get_room_id{
-    $_[0] =~ /r=(\d+)|r(\d+)/;
-    return $1 || $2;
-}
-
-
-sub get_roomlogs{
-    my $id = shift;
-    local *IN;
-
-    my @logs = ();
-
-    open(IN, '<', "$room_logdir/$id") || die;
-    while(<IN>){
-        chomp;
-        my ($name, $comment) = split(/\t/, $_);
-        push(@logs, {NAME => $name, COMMENT => $comment});
-    }
-    close(IN);
-
-    return \@logs;
+sub get_mech{
+    my $m = new WWW::Mechanize();
+    $m->agent_alias( 'Windows IE 6' );
+    return $m;
 }
 
 
@@ -119,10 +29,6 @@ sub split_tag{
 
 sub child{
     my $l = shift;
-    local *OUT;
-
-    # SIGTERM ハンドラをセット
-    $SIG{TERM} = sub { exit 0 };
 
     my $text = encode_utf8 $l->text;
     my $url = $l->url_abs();
@@ -146,14 +52,61 @@ sub child{
         push(@logs, [split_tag($1), split_tag($2)]);
     }
 
-    open(OUT, '>>', $tempfile) || die $!;
-    print OUT join("\t", $url, $text, @members), "\n";
-    close(OUT);
 
-    my $room_id = get_room_id($url);
-    open(OUT, '>', "$room_logdir/$room_id") || die;
-    print OUT map {join("\t", @$_), "\n"} @logs;
-    close(OUT);
-
-    return 0;
+    return {
+        url     => $url,
+        text    => $text,
+        members => \@members,
+        logs    => \@logs,
+    };
 }
+
+
+# time計測
+my $s_time = time();
+
+# 部屋の取得
+my $m = get_mech();
+$m->get('http://chat.teacup.com/');
+my @room_links = $m->find_all_links( 
+    url_regex => qr"http://chat\d*\.teacup\.com/chat(\?r=\d+|/r\d+/)" );
+
+#my @room_links = ();  #DBUEGDEBUGDEBUG
+
+my @coros;
+my %results;
+
+foreach my $l(@room_links){
+    my $url = $l->url_abs();
+
+    next unless $l->text();  #部屋名が不明なら飛ばす
+
+    push @coros, async {
+        $results{$url} = child $l;
+    };
+}
+
+$_->join for @coros;
+
+# 部屋情報を収集
+my @room_data;
+for ( @room_links ){
+    my $ret = $results{ $_->url_abs };
+    push @room_data, {
+        URL     => $ret->{url}, 
+        DISP    => $ret->{text}, 
+        MEMBERS => $ret->{members},
+        LOGS    => $ret->{logs},
+    };
+}
+
+# テンプレートに書き出し
+my $tt = Template->new({});
+
+$tt->process($tpl, {
+    PROC_TIME => time() - $s_time,
+    UPD_TIME  => scalar(localtime()),
+    ROOMS => \@room_data,
+}, $disthtml) || die $tt->error();
+
+exit(0);
