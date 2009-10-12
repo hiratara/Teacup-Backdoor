@@ -2,7 +2,9 @@
 use strict;
 use warnings;
 use Encode;
+use Coro::LWP;
 use WWW::Mechanize;
+use Coro;
 use Template;
 
 sub get_mech{
@@ -36,7 +38,7 @@ my @room_links = $m->find_all_links(
 # SIGTERM ハンドラをセット
 $SIG{TERM} = sub { $exit_loop = 1 };
 
-my %pids = ();
+my @coros;
 foreach my $l(@room_links){
     last if $exit_loop;
 
@@ -44,25 +46,12 @@ foreach my $l(@room_links){
 
     next unless $l->text();  #部屋名が不明なら飛ばす
 
-    if(keys %pids >= $max_process){
-        # いっぱいいっぱいっぽかったら待つ
-        my $pid = wait();
-        delete $pids{$pid};
-    }
-
-    if(my $pid = fork() ){
-        # 親プロセス
-        $pids{$pid} = 1;
-    }elsif(defined $pid){
-        # 子プロセス
-        exit(child($l));
-    }else{
-        die "sorry.";
-    }
+    push @coros, async {
+		child($l);
+	};
 }
 
-# 全て終了するのを待つ
-while( wait() >= 0 ){ }
+$_->join for @coros;
 
 # 部屋情報を収集
 my @room_data = ();
