@@ -17,7 +17,7 @@ my $tempfile    = 'temp.txt';
 my $room_logdir = 'room';
 my $tpl      = 'moto.tt';
 my $disthtml = '/Library/WebServer/Documents/teacup/index.html';
-#my $disthtml = 'out.html';
+$disthtml = 'out.html' if $ENV{DEBUG};
 
 # time·×Â¬
 my $s_time = time();
