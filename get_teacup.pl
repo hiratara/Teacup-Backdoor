@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use Encode;
+use AnyEvent::Impl::Perl;
 use Coro::LWP;
 use WWW::Mechanize;
 use Coro;
