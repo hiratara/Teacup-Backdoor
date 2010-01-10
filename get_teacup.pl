@@ -5,6 +5,7 @@ use Encode;
 use AnyEvent::Impl::Perl;
 use Coro::LWP;
 use WWW::Mechanize;
+use Web::Scraper;
 use Coro;
 use Template;
 
@@ -28,6 +29,10 @@ sub split_tag{
 }
 
 
+my $scraper = scraper {
+	process '#name_list', members => 'TEXT';
+	process '.log_line1', 'logs[]' => 'TEXT';
+};
 sub child{
     my $l = shift;
 
@@ -43,14 +48,15 @@ sub child{
 #warn $c;
     }
 
-    die $url
-        unless $c =~ m|<TD bgcolor="#E9ECED">&nbsp;(.*)</TD>|;
-    my $member  = $1;
-    my @members = split(/ ,/, $member);
+    my $parsed = $scraper->scrape( \$c );
+
+    ( my $members = $parsed->{members} || '' ) =~ s/^\xa0//;  # remove &nbsp;
+    my @members = split(/, /, $members);
 
     my @logs;
-    while($c =~ m{^<FONT color="[^\r\n]+?">([^\r\n]+?) </FONT>&gt; ([^\r\n]+?)<FONT color="#737373">\(\d\d/\d\d \w{3} \d\d:\d\d:\d\d\)</FONT><BR>$}smg){
-        push(@logs, [split_tag($1), split_tag($2)]);
+    for( @{ $parsed->{logs} } ){
+        m/^(.+) > (.*)\([^)]+\)$/ or warn $_;
+        push( @logs, { NAME => split_tag($1), COMMENT => split_tag($2) } );
     }
 
 
