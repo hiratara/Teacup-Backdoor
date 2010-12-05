@@ -7,6 +7,7 @@ use Coro::LWP;
 use WWW::Mechanize;
 use Web::Scraper;
 use Coro;
+use Coro::Semaphore;
 use Template;
 
 
@@ -83,17 +84,22 @@ my @room_links = $m->find_all_links(
 my @coros;
 my %results;
 
+my $lock = Coro::Semaphore->new(100);  # 最大同時接続数
+my $done = Coro::Semaphore->new;
 foreach my $l(@room_links){
     my $url = $l->url_abs();
 
     next unless $l->text();  #部屋名が不明なら飛ばす
 
+    $done->adjust(-1);
     push @coros, async {
+        my $guard = $lock->guard;
         $results{$url} = child $l;
+        $done->up;  # notify that the task was done
     };
 }
 
-$_->join for @coros;
+$done->down;  # wait until all tasks was done.
 
 # 部屋情報を収集
 my @room_data;
