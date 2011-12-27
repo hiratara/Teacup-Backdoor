@@ -1,8 +1,7 @@
-#!/opt/local/bin/perl
+#!/usr/bin/env perl
 use strict;
 use warnings;
 use Encode;
-use AnyEvent::Impl::Perl;
 use Coro::LWP;
 use WWW::Mechanize;
 use Web::Scraper;
@@ -12,7 +11,7 @@ use Template;
 
 
 my $tpl      = 'moto.tt';
-my $disthtml = '/Library/WebServer/Documents/teacup/index.html';
+my $disthtml = '/var/www/teacup/index.html';
 $disthtml = 'out.html' if $ENV{DEBUG};
 
 
