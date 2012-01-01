@@ -55,13 +55,9 @@ function load_tooltip(){
 <!-- The end of Google Analytics -->
 </head>
 <body onLoad="load_tooltip();">
+<div style="float:left;"><h1>teacup. 「みんなのチャット」裏口</h1></div>
 <div style="float:right;"><a href="/chaberi/">チャベリ 裏口</a> | by <a href="http://d.hatena.ne.jp/hiratara/">id:hiratara</a></div>
-
-<div style="clear: both;"></div>
-
-<div style="width: 100%; float:left; margin: 0 -350px 0 0;">
-<div style="margin: 0 350px 0 0; padding: 0;">
-<h1>teacup. 「みんなのチャット」裏口</h1>
+<br clear="all" />
 <p>
 <a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>の非公式入り口です。<a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>を元に勝手に生成しています。
 </p>
@@ -69,41 +65,6 @@ function load_tooltip(){
 <p>
 ※ このページは、<a href="http://chat.teacup.com/">teacup. 「みんなのチャット」</a>とはなんの関係もありません。
 </p>
-</div>
-</div>
-
-<div style="float:right; width:350px;">
-<script src="http://widgets.twimg.com/j/2/widget.js"></script>
-<script>
-new TWTR.Widget({
-  version: 2,
-  type: 'profile',
-  rpp: 4,
-  interval: 30000,
-  width: 350,
-  height: 100,
-  theme: {
-    shell: {
-      background: '#CCFFFF',
-      color: '#000000'
-    },
-    tweets: {
-      background: '#ffffff',
-      color: '#000000',
-      links: '#2c72eb'
-    }
-  },
-  features: {
-    scrollbar: true,
-    loop: false,
-    live: true,
-    behavior: 'all'
-  }
-}).render().setUser('hiratara').start();
-</script>
-</div>
-
-<div style="clear: both;"></div>
 
 <table>
 [% FOREACH R=ROOMS %]
