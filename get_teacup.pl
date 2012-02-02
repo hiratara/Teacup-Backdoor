@@ -74,7 +74,7 @@ my $s_time = time();
 
 # 部屋の取得
 my $m = get_mech();
-$m->get('http://chat.teacup.com/');
+$m->get('http://chat.teacup.com/roomlink.html');
 my @room_links = $m->find_all_links( 
     url_regex => qr"http://chat\d*\.teacup\.com/chat(\?r=\d+|/r\d+/)" );
 
