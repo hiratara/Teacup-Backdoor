@@ -69,10 +69,10 @@ sub child{
 }
 
 
-# time·×Â¬
+# timeè¨ˆæ¸¬
 my $s_time = time();
 
-# Éô²°¤Î¼èÆÀ
+# éƒ¨å±‹ã®å–å¾—
 my $m = get_mech();
 $m->get('http://chat.teacup.com/roomlink.html');
 my @room_links = $m->find_all_links( 
@@ -83,12 +83,12 @@ my @room_links = $m->find_all_links(
 my @coros;
 my %results;
 
-my $lock = Coro::Semaphore->new(100);  # ºÇÂçÆ±»þÀÜÂ³¿ô
+my $lock = Coro::Semaphore->new(100);  # æœ€å¤§åŒæ™‚æŽ¥ç¶šæ•°
 my $done = Coro::Semaphore->new;
 foreach my $l(@room_links){
     my $url = $l->url_abs();
 
-    next unless $l->text();  #Éô²°Ì¾¤¬ÉÔÌÀ¤Ê¤éÈô¤Ð¤¹
+    next unless $l->text();  #éƒ¨å±‹åãŒä¸æ˜Žãªã‚‰é£›ã°ã™
 
     $done->adjust(-1);
     push @coros, async {
@@ -100,7 +100,7 @@ foreach my $l(@room_links){
 
 $done->down;  # wait until all tasks was done.
 
-# Éô²°¾ðÊó¤ò¼ý½¸
+# éƒ¨å±‹æƒ…å ±ã‚’åŽé›†
 my @room_data;
 for ( @room_links ){
     my $ret = $results{ $_->url_abs };
@@ -112,7 +112,7 @@ for ( @room_links ){
     };
 }
 
-# ¥Æ¥ó¥×¥ì¡¼¥È¤Ë½ñ¤­½Ð¤·
+# ãƒ†ãƒ³ãƒ—ãƒ¬ãƒ¼ãƒˆã«æ›¸ãå‡ºã—
 my $tt = Template->new({});
 
 $tt->process($tpl, {
