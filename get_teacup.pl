@@ -54,7 +54,7 @@ sub child{
 
     my @logs;
     for( @{ $parsed->{logs} } ){
-        m/^(.+) > (.*)\([^)]+\)$/ or warn $_;
+        m/^(.*) > (.*)\([^)]+\)$/ or warn $_;
         push( @logs, { NAME => split_tag($1), COMMENT => split_tag($2) } );
     }
 
