@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 use strict;
 use warnings;
-use Encode;
 use Coro::LWP;
 use WWW::Mechanize;
 use Web::Scraper;
@@ -36,7 +35,7 @@ my $scraper = scraper {
 sub child{
     my $l = shift;
 
-    my $text = encode_utf8 $l->text;
+    my $text = $l->text;
     my $url = $l->url_abs();
 
     my $c = undef;
@@ -44,7 +43,7 @@ sub child{
         my $m = get_mech;
         $m->get($url);
 #warn $m->status;
-        $c = encode_utf8 $m->content;
+        $c = $m->content;
 #warn $c;
     }
 
@@ -113,12 +112,12 @@ for ( @room_links ){
 }
 
 # テンプレートに書き出し
-my $tt = Template->new({});
+my $tt = Template->new({ENCODING => 'utf8'});
 
 $tt->process($tpl, {
     PROC_TIME => time() - $s_time,
     UPD_TIME  => scalar(localtime()),
     ROOMS => \@room_data,
-}, $disthtml) || die $tt->error();
+}, $disthtml, binmode => ':utf8') || die $tt->error();
 
 exit(0);
