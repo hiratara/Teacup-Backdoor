@@ -75,6 +75,9 @@ function load_tooltip(){
 <a href="[% R.URL %]" title="[% FOR L=R.LOGS.reverse %][% L.NAME | html %]「[% L.COMMENT | html %]」&#x0d;&#x0a;[% END %]" class="room_link">[% R.DISP %]</a>
 </div>
 <div class="members">
+  [% IF R.ERROR %]
+    <div style="color:red;">読み込み中にエラーがおきました</div>
+  [% END %]
   [% FOREACH M=R.MEMBERS %]
   <span class="member-name">[% M %]</span>
   [%- IF ! loop.last %]・[% END %]

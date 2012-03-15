@@ -38,35 +38,34 @@ sub child{
     my $text = $l->text;
     my $url = $l->url_abs();
 
-    my $c = undef;
-    {
+    my (@members, @logs);
+    eval {
         my $m = get_mech;
         $m->get($url);
-#warn $m->status;
-        $c = $m->content;
-#warn $c;
-    }
+        my $c = $m->content;
 
-    my $parsed = $scraper->scrape( \$c );
+        my $parsed = $scraper->scrape( \$c );
 
-    ( my $members = $parsed->{members} || '' ) =~ s/^\xa0//;  # remove &nbsp;
-    my @members = split(/, /, $members);
+        ( my $members = $parsed->{members} || '' ) =~ s/^\xa0//; # remove &nbsp;
+        @members = split(/, /, $members);
 
-    my @logs;
-    for( @{ $parsed->{logs} } ){
-        if (m/^(.*) > (.*)\([^)]+\)$/) {
-            push @logs, {NAME => split_tag($1), COMMENT => split_tag($2)};
-        } else {
-            warn $_;
+        for ( @{ $parsed->{logs} } ) {
+            if (m/^(.*) > (.*)\([^)]+\)$/) {
+                push @logs, {NAME => split_tag($1), COMMENT => split_tag($2)};
+            } else {
+                warn $_;
+            }
         }
-    }
+    };
 
+    warn my $error = $@ if $@;
 
     return {
         url     => $url,
         text    => $text,
         members => \@members,
         logs    => \@logs,
+        error   => $error,
     };
 }
 
@@ -111,6 +110,7 @@ for ( @room_links ){
         DISP    => $ret->{text}, 
         MEMBERS => $ret->{members},
         LOGS    => $ret->{logs},
+        ERROR   => $ret->{error},
     };
 }
 
