@@ -84,7 +84,7 @@ my @room_links = $m->find_all_links(
 my @coros;
 my %results;
 
-my $lock = Coro::Semaphore->new(100);  # 最大同時接続数
+my $lock = Coro::Semaphore->new($ENV{BACKDOOR_CON_NUM} or 100); # 最大同時接続数
 my $done = Coro::Semaphore->new;
 foreach my $l(@room_links){
     my $url = $l->url_abs();
