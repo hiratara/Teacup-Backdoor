@@ -92,7 +92,7 @@ function load_tooltip(){
 <hr>
 更新時間: [% UPD_TIME %]<br>
 処理にかかった時間: [% PROC_TIME %]秒<br>
-お問い合わせは、ｈｉｒａ．ｔａｒａ＠ｇｍａｉｌ．ｃｏｍまで。<br>
-<br>
+お問い合わせは、ｈｉｒａ．ｔａｒａ＠ｇｍａｉｌ．ｃｏｍまで。
+<div><iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fhiratara.dyndns.org%2Fteacup%2F&amp;send=false&amp;layout=standard&amp;width=450&amp;show_faces=true&amp;action=like&amp;colorscheme=light&amp;font=arial&amp;height=80&amp;appId=100848266724416" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:450px; height:80px;" allowTransparency="true"></iframe></div>
 <div id="copyright" align="right">&copy; 2008 hiratara</div>
 </body>
